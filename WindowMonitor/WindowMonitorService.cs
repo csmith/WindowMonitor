@@ -1,7 +1,10 @@
 ﻿namespace WindowMonitor
 {
     using System;
+    using System.Linq;
     using System.ServiceProcess;
+    using System.Text;
+    using System.Text.RegularExpressions;
     using System.Timers;
 
     /// <summary>
@@ -20,11 +23,20 @@
         private WindowMonitor monitor;
 
         /// <summary>
+        /// The regex to use to extract image names.
+        /// </summary>
+        private Regex filterRegex;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="WindowMonitorService"/> class. 
         /// </summary>
-        public WindowMonitorService()
+        /// <param name="imageFilter">
+        /// The filter to use to extract image names.
+        /// </param>
+        public WindowMonitorService(string imageFilter)
         {
             this.InitializeComponent();
+            this.filterRegex = new Regex(imageFilter);
         }
 
         /// <summary>
@@ -82,7 +94,24 @@
         {
             var handle = this.monitor.GetActiveWindowHandle();
             Console.WriteLine(this.monitor.GetWindowTitle(handle));
-            Console.WriteLine(this.monitor.GetWindowFileName(handle));
+
+            var fileName = this.monitor.GetWindowFileName(handle);
+            Console.WriteLine(fileName);
+
+            var matches = this.filterRegex.Match(fileName);
+            var builder = new StringBuilder();
+
+            for (var i = 1; i <= matches.Groups.Count; i++)
+            {
+                if (builder.Length > 0)
+                {
+                    builder.Append(' ');
+                }
+
+                builder.Append(matches.Groups[i].Value);
+            }
+
+            Console.WriteLine(builder);
             Console.WriteLine();
         }
     }

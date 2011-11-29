@@ -1,7 +1,6 @@
 ﻿namespace WindowMonitor
 {
     using System;
-    using System.Diagnostics;
     using System.Management;
     using System.Runtime.InteropServices;
     using System.Text;
@@ -55,16 +54,16 @@
             int processId;
             GetWindowThreadProcessId(handle, out processId);
 
+            if (processId == 0)
+            {
+                return string.Empty;
+            }
+
             var wmiQuery = string.Format("select CommandLine from Win32_Process where ProcessId={0}", processId);
             var searcher = new ManagementObjectSearcher(wmiQuery);
             var resultEnumerator = searcher.Get().GetEnumerator();
 
-            if (resultEnumerator.MoveNext())
-            {
-                return resultEnumerator.Current["CommandLine"].ToString();
-            }
-
-            return string.Empty;
+            return resultEnumerator.MoveNext() ? resultEnumerator.Current["CommandLine"].ToString() : string.Empty;
         }
 
         [DllImport("user32.dll")]

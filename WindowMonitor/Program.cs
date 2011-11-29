@@ -1,6 +1,7 @@
 ﻿namespace WindowMonitor
 {
     using System;
+    using System.Configuration;
     using System.ServiceProcess;
 
     /// <summary>
@@ -14,9 +15,10 @@
         /// </summary>
         public static void Main()
         {
+            var service = new WindowMonitorService(ConfigurationManager.AppSettings["ProcessMatcher"]);
+
             if (Environment.UserInteractive)
             {
-                var service = new WindowMonitorService();
                 service.Startup();
                 Console.WriteLine("Service started; Press <enter> to stop.");
                 Console.ReadLine();
@@ -26,7 +28,7 @@
             {
                 ServiceBase.Run(new ServiceBase[] 
                 { 
-                    new WindowMonitorService() 
+                    service
                 });                
             }
         }
