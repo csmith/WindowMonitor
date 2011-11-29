@@ -1,24 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.ServiceProcess;
-using System.Text;
-
-namespace WindowMonitor
+﻿namespace WindowMonitor
 {
-    static class Program
+    using System;
+    using System.ServiceProcess;
+
+    /// <summary>
+    /// The main entry point. Starts the service either as a console app or
+    /// registered with the service manager.
+    /// </summary>
+    internal static class Program
     {
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
-        static void Main()
+        public static void Main()
         {
-            ServiceBase[] ServicesToRun;
-            ServicesToRun = new ServiceBase[] 
-			{ 
-				new Service1() 
-			};
-            ServiceBase.Run(ServicesToRun);
+            if (Environment.UserInteractive)
+            {
+                var service = new WindowMonitorService();
+                service.Startup();
+                Console.WriteLine("Service started; Press <enter> to stop.");
+                Console.ReadLine();
+                service.Shutdown();
+            }
+            else
+            {
+                ServiceBase.Run(new ServiceBase[] 
+                { 
+                    new WindowMonitorService() 
+                });                
+            }
         }
     }
 }
